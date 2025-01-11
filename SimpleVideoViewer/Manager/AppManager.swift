@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-final class AppManager: ObservableObject  {
+final class AppManager: ObservableObject {
     
     @Published var configuration = Configuration()
     @Published var loadFailures: [Int: Int] = [:] // Счетчики неудачных загрузок для каждого изображения
@@ -37,13 +37,12 @@ final class AppManager: ObservableObject  {
                 .sink { _ in
                     self.loadImage(for: index)
                 }
-            
         }
     }
 
-   private func loadImage(for index: Int) {
-       guard let url = URL(string: configuration.imageURLs[index]) else {
-            //print("Invalid URL for index \(index)")
+    private func loadImage(for index: Int) {
+        guard let url = URL(string: configuration.imageURLs[index]) else {
+            print("Invalid URL for index \(index)")
             return
         }
 
@@ -67,15 +66,51 @@ final class AppManager: ObservableObject  {
             DispatchQueue.main.async {
                 self.lastLoadedImages[index] = Image(nsImage: nsImage)
                 self.loadFailures[index] = 0 // Успешная загрузка сбрасывает счетчик
-                //print("Успешно для \(index)")
             }
         }.resume()
     }
+    
+    func removeURL(at index: Int) {
+        guard index < configuration.imageURLs.count else { return }
+        
+        // Удаляем URL из массива
+        configuration.imageURLs.remove(at: index)
+        
+        // Обновляем связанные структуры
+        DispatchQueue.main.async {
+            self.reindexDataStructures(afterRemovingIndex: index)
+        }
+    }
+    
+    private func reindexDataStructures(afterRemovingIndex removedIndex: Int) {
+        // Удаляем связанные данные из loadFailures
+        var updatedLoadFailures: [Int: Int] = [:]
+        for (key, value) in loadFailures where key != removedIndex {
+            updatedLoadFailures[key < removedIndex ? key : key - 1] = value
+        }
+        loadFailures = updatedLoadFailures
 
+        // Удаляем связанные данные из lastLoadedImages
+        var updatedLastLoadedImages: [Int: Image] = [:]
+        for (key, value) in lastLoadedImages where key != removedIndex {
+            updatedLastLoadedImages[key < removedIndex ? key : key - 1] = value
+        }
+        lastLoadedImages = updatedLastLoadedImages
+        
+        // Перезапускаем таймеры
+        restartTimers()
+    }
+    
+    private func restartTimers() {
+        // Очищаем старые таймеры
+        timers.forEach { $0.cancel() }
+        timers.removeAll()
+        
+        // Запускаем новые таймеры
+        startImageRefreshTimers()
+    }
+    
     private func getDocumentsDirectory() -> URL? {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
     }
-    
-    
-    
 }

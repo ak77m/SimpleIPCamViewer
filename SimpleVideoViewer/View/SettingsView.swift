@@ -7,18 +7,14 @@
 
 import SwiftUI
 
-// Модальное окно настроек
 struct SettingsView: View {
     
     @EnvironmentObject var mgr: AppManager
+    @Binding var isSettingsVisible: Bool
     
-     @Binding var isSettingsVisible: Bool
-//    @Binding var gridSize: CGSize
-//    @Binding var contentType: ContentType
-//    @Binding var aspectRatio: AspectRatio
-//    @Binding var borderColor: Color
-//    @Binding var imageURLs: [String]
-
+    // Дополнительная переменная для нового URL
+    @State private var newImageURL: String = ""
+    
     var body: some View {
         VStack {
             Text("Настройки")
@@ -40,7 +36,7 @@ struct SettingsView: View {
                 Spacer()
             }
 
-            Picker("Nип изображения", selection: $mgr.configuration.contentType) {
+            Picker("Тип изображения", selection: $mgr.configuration.contentType) {
                 Text("Image").tag(ContentType.image)
                 Text("Video").tag(ContentType.video)
             }
@@ -50,18 +46,59 @@ struct SettingsView: View {
                 Text("16:9").tag(AspectRatio.aspect16_9)
             }
 
-            ColorPicker("Border Color", selection: $mgr.configuration.borderColor)
+            ColorPicker("Цвет границы", selection: $mgr.configuration.borderColor)
 
-            List(0..<mgr.configuration.imageURLs.count, id: \.self) { index in
-                TextField("URL for Image \(index + 1)", text: Binding(
-                    get: { mgr.configuration.imageURLs[index] },
-                    set: { mgr.configuration.imageURLs[index] = $0 }
-                ))
+            // Новая секция для добавления, удаления и перетаскивания URL
+            VStack {
+                Text("Список URL-адресов:")
+                    .font(.headline)
+
+                List {
+                    ForEach(mgr.configuration.imageURLs.indices, id: \.self) { index in
+                        HStack {
+                            TextField("URL for Image \(index + 1)", text: Binding(
+                                get: { mgr.configuration.imageURLs[index] },
+                                set: { mgr.configuration.imageURLs[index] = $0 }
+                            ))
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding(.trailing, 8)
+                            
+                            // Удаление только если строка не пустая
+                            Button(action: {
+                                mgr.removeURL(at: index)
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .onMove(perform: moveURL)
+                }
+                .frame(height: 200)
+                .padding()
+                
+                HStack {
+                    TextField("Новый URL", text: $newImageURL)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.trailing, 8)
+                    
+                    Button("Добавить URL") {
+                        // Добавляем новый URL в список, если он не пустой
+                        if !newImageURL.isEmpty {
+                            mgr.configuration.imageURLs.append(newImageURL)
+                            newImageURL = "" // очищаем поле
+                        }
+                    }
+                    .padding()
+                    .disabled(newImageURL.isEmpty)
+                }
+                .padding()
             }
-
+            
             Spacer()
 
-            Button("Save and Close") {
+            Button("Сохранить и закрыть") {
                 mgr.saveSettings()
                 isSettingsVisible = false
             }
@@ -72,4 +109,8 @@ struct SettingsView: View {
         .frame(width: 500, height: 700)
     }
 
+    // Функция для перемещения URL в списке
+    private func moveURL(from source: IndexSet, to destination: Int) {
+        mgr.configuration.imageURLs.move(fromOffsets: source, toOffset: destination)
+    }
 }

@@ -16,7 +16,7 @@ struct Configuration {
     var borderColor: Color = .gray // Цвет границы
     var imageURLs: [String] = Array(repeating: "", count: 16) // Массив путей для картинок
     
-    var defaultImageName = "sample1"
+    var defaultImageName = "NoImage"
     var imageURLsFileName = "imageURLs.json"
     var refreshInterval: TimeInterval = 2 // Интервал обновления изображений
     var maxFailures = 3 // Максимальное количество неудачных загрузок перед отображением надписи

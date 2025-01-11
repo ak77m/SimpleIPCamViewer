@@ -34,9 +34,21 @@ struct MainView: View {
                                             .stroke(mgr.configuration.borderColor, lineWidth: 2)
                                     )
                                     .contextMenu {
+                                        
+                                        Button("2х2") {
+                                            mgr.configuration.gridSize.width = 2
+                                            mgr.configuration.gridSize.height = 2
+                                            
+                                        }
+                                        Button("2х3") {
+                                            mgr.configuration.gridSize.width = 3
+                                            mgr.configuration.gridSize.height = 2
+                                        }
+                                        
                                         Button("Show Settings") {
                                             isSettingsVisible.toggle()
                                         }
+                                        
                                     }
                                     .onLongPressGesture(minimumDuration: 0.5) {
                                         fullscreenItem = index
