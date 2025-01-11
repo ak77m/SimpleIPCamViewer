@@ -10,9 +10,12 @@ import SwiftUI
 
 @main
 struct MediaGridApp: App {
+    
+    let manager = AppManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView().environmentObject(manager)
         }
     }
 }
