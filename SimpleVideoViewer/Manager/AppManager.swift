@@ -16,19 +16,19 @@ final class AppManager: ObservableObject {
     var timers: [AnyCancellable] = [] // Таймеры обновления изображений
     
     func loadSettings() {
-        if let url = getDocumentsDirectory()?.appendingPathComponent(configuration.imageURLsFileName),
-           let data = try? Data(contentsOf: url),
-           let loadedURLs = try? JSONDecoder().decode([String].self, from: data) {
-            configuration.imageURLs = loadedURLs
+            if let url = getDocumentsDirectory()?.appendingPathComponent("settings.json"),
+               let data = try? Data(contentsOf: url),
+               let loadedConfiguration = try? JSONDecoder().decode(Configuration.self, from: data) {
+                configuration = loadedConfiguration
+            }
         }
-    }
 
-    func saveSettings() {
-        if let url = getDocumentsDirectory()?.appendingPathComponent(configuration.imageURLsFileName),
-           let data = try? JSONEncoder().encode(configuration.imageURLs) {
-            try? data.write(to: url)
+        func saveSettings() {
+            if let url = getDocumentsDirectory()?.appendingPathComponent("settings.json"),
+               let data = try? JSONEncoder().encode(configuration) {
+                try? data.write(to: url)
+            }
         }
-    }
 
     func startImageRefreshTimers() {
         timers = configuration.imageURLs.enumerated().map { index, _ in
@@ -101,7 +101,7 @@ final class AppManager: ObservableObject {
         restartTimers()
     }
     
-    private func restartTimers() {
+     func restartTimers() {
         // Очищаем старые таймеры
         timers.forEach { $0.cancel() }
         timers.removeAll()

@@ -48,6 +48,12 @@ struct SettingsView: View {
 
             ColorPicker("Цвет границы", selection: $mgr.configuration.borderColor)
 
+            VStack{
+                Slider(value: $mgr.configuration.refreshInterval, in: 1...10, step: 0.5)
+                Text("Интервал обновления контента: \(String(format: "%.1f", mgr.configuration.refreshInterval)) сек")
+            }
+            
+            Divider()
             // Новая секция для добавления, удаления и перетаскивания URL
             VStack {
                 Text("Список URL-адресов:")
@@ -83,7 +89,7 @@ struct SettingsView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.trailing, 8)
                     
-                    Button("Добавить URL") {
+                    Button("Добавить") {
                         // Добавляем новый URL в список, если он не пустой
                         if !newImageURL.isEmpty {
                             mgr.configuration.imageURLs.append(newImageURL)
@@ -99,10 +105,11 @@ struct SettingsView: View {
             Spacer()
 
             Button("Сохранить и закрыть") {
+                mgr.restartTimers()
                 mgr.saveSettings()
                 isSettingsVisible = false
             }
-            .font(.title2)
+            .font(.title3)
             .padding()
         }
         .padding()
