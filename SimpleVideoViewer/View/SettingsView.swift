@@ -14,6 +14,8 @@ struct SettingsView: View {
     
     // Дополнительная переменная для нового URL
     @State private var newImageURL: String = ""
+    @State private var traficOptimization: Bool = false
+    @State private var smallPicResolution: String = "?videoResolutionWidth=854&videoResolutionHeight=480"
     
     var body: some View {
         VStack {
@@ -49,9 +51,16 @@ struct SettingsView: View {
             ColorPicker("Цвет границы", selection: $mgr.configuration.borderColor)
 
             VStack{
-                Slider(value: $mgr.configuration.refreshInterval, in: 1...10, step: 0.5)
                 Text("Интервал обновления контента: \(String(format: "%.1f", mgr.configuration.refreshInterval)) сек")
-            }
+                Slider(value: $mgr.configuration.refreshInterval, in: 1...10, step: 0.5)
+            }.padding(.vertical)
+            
+            VStack(alignment: .leading) {
+                Toggle(isOn: $traficOptimization) {
+                    Text("Использовать другой размер картинки в мультивью")
+                }
+                TextField("?videoResolutionWidth=854&videoResolutionHeight=480", text: $smallPicResolution )
+            }.padding(.vertical)
             
             Divider()
             // Новая секция для добавления, удаления и перетаскивания URL
@@ -113,10 +122,10 @@ struct SettingsView: View {
             .padding()
         }
         .padding()
-        .frame(width: 500, height: 700)
+        .frame(width: 550, height: 800)
     }
 
-    // Функция для перемещения URL в списке
+    // Перемещение URL в списке
     private func moveURL(from source: IndexSet, to destination: Int) {
         mgr.configuration.imageURLs.move(fromOffsets: source, toOffset: destination)
     }

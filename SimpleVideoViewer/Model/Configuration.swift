@@ -18,7 +18,7 @@ struct Configuration: Codable {
     var imageURLs: [String] = []
     var imageURLsFileName: String = "imageURLs.json" // Имя файла для сохранения данных
     var defaultImageName = "NoImage"
-    var maxFailures = 3 // Максимальное количество неудачных загрузок перед отображением надписи
+    var maxFailures = 3 // Максимальное количество неудачных загрузок перед отображением надписи о потере изображения
     
     // Преобразование цвета для кодирования
     private enum CodingKeys: String, CodingKey {
@@ -56,21 +56,6 @@ struct Configuration: Codable {
         try container.encode(borderColor.toHex(), forKey: .borderColor)
     }
 }
-
-//struct Configuration {
-//
-//    var gridSize: CGSize = CGSize(width: 2, height: 2) // Размер сетки по умолчанию
-//    var contentType: ContentType = .image // Тип контента по умолчанию
-//    var aspectRatio: AspectRatio = .aspect16_9 // Соотношение сторон
-//    var borderColor: Color = .gray // Цвет границы
-//    var imageURLs: [String] = Array(repeating: "", count: 16) // Массив путей для картинок
-//    
-//    var defaultImageName = "NoImage"
-//    var imageURLsFileName = "imageURLs.json"
-//    var refreshInterval: TimeInterval = 2 // Интервал обновления изображений
-//    var maxFailures = 3 // Максимальное количество неудачных загрузок перед отображением надписи
-//    
-//}
 
 // Типы контента
 enum ContentType: String, Codable {
