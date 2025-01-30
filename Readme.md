@@ -1,5 +1,5 @@
 #  Simple Video Viewer
-Pet project for working with IP cameras
+Pet project for working with IP cameras.
 To begin (and maybe finally) my APP works only with jpeg, with updates by timer
 
 What is all this for.
